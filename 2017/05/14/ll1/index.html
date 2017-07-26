@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="暖熊熊的博客">
 <meta property="og:description" content="设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。  求FIRST集的算法思想如果产生式右部第一个字符为终结符，则将其计入左部first集如果产生式右部第一个">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3943248-47762ec5c4ea7b42.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-05-14T07:27:23.964Z">
+<meta property="og:updated_time" content="2017-07-26T11:59:45.681Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LL1文法_预测分析法_语法分析器">
 <meta name="twitter:description" content="设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。  求FIRST集的算法思想如果产生式右部第一个字符为终结符，则将其计入左部first集如果产生式右部第一个">
@@ -376,8 +376,7 @@
       
         <p>设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。<br>思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。</p>
 <ol>
-<li><p>求FIRST集的算法思想<br>如果产生式右部第一个字符为终结符，则将其计入左部first集<br>如果产生式右部第一个字符为非终结符<br>-&gt;求该非终结符的first集<br>-&gt;将该非终结符的非$first集计入左部的first集<br>-&gt;若存在$，则将指向产生式的指针右移<br>-&gt;若不存在$，则停止遍历该产生式，进入下一个产生式<br>-&gt;若已经到达产生式的最右部的非终结符，则将$加入左部的first集<br>处理数组中重复的first集中的终结符</p>
-</li>
+<li>求FIRST集的算法思想<br>如果产生式右部第一个字符为终结符，则将其计入左部first集<br>如果产生式右部第一个字符为非终结符<br>-&gt;求该非终结符的first集<br>-&gt;将该非终结符的非$first集计入左部的first集<br>-&gt;若存在$，则将指向产生式的指针右移<br>-&gt;若不存在$，则停止遍历该产生式，进入下一个产生式<br>-&gt;若已经到达产生式的最右部的非终结符，则将$加入左部的first集<br>处理数组中重复的first集中的终结符<a id="more"></a></li>
 <li><p>求FOLLOW集的算法思想<br>对于文法G中每个非终结符A构造FOLLOW(A)的办法是,连续使用下面的规则,直到每个FOLLOW不在增大为止.<br>(1) 对于文法的开始符号S,置#于FOLLOW(S)中;<br>(2) 若A-&gt;aBb是一个产生式,则把FIRST(b){ε}加至FOLLOW(B)中;<br>(3) 若A-&gt;aB是一个产生式,或A-&gt;aBb是一个产生式而b=&gt;ε(即ε∈FIRST(b))则把FOLLOW(A)加至FOLLOW(B)中</p>
 </li>
 <li><p>生成预测分析表的算法思想<br>构造分析表M的算法是：<br>(1) 对文法G的每个产生式A-&gt;a执行第二步和第三步;<br>(2) 对每个终结符a∈FIRST(a),把A-&gt;a加至M[A,a]中;<br>(3) 若ε∈FIRST(a),则把任何b∈FOLLOW(A)把A-&gt;a加至M[A,b]中;<br>(4) 把所有无定义的M[A,a]标上出错标志.</p>
