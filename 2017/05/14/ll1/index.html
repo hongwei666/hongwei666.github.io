@@ -1,0 +1,777 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LL1文法,预测分析法,语法分析," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。  求FIRST集的算法思想如果产生式右部第一个字符为终结符，则将其计入左部first集如果产生式右部第一个">
+<meta name="keywords" content="LL1文法,预测分析法,语法分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LL1文法_预测分析法_语法分析器">
+<meta property="og:url" content="http://www.nuanbear.top/2017/05/14/ll1/index.html">
+<meta property="og:site_name" content="暖熊熊的博客">
+<meta property="og:description" content="设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。  求FIRST集的算法思想如果产生式右部第一个字符为终结符，则将其计入左部first集如果产生式右部第一个">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3943248-47762ec5c4ea7b42.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-05-14T07:27:23.964Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LL1文法_预测分析法_语法分析器">
+<meta name="twitter:description" content="设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。  求FIRST集的算法思想如果产生式右部第一个字符为终结符，则将其计入左部first集如果产生式右部第一个">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/3943248-47762ec5c4ea7b42.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.nuanbear.top/2017/05/14/ll1/"/>
+
+
+
+
+
+  <title> LL1文法_预测分析法_语法分析器 | 暖熊熊的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">暖熊熊的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.nuanbear.top/2017/05/14/ll1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hongwei">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="暖熊熊的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LL1文法_预测分析法_语法分析器
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-14T15:24:19+08:00">
+                2017-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  1,448
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>设计要求：对于任意输入的一个LL(1)文法，构造其预测分析表，并对指定输入串分析其是否为该文法的句子。<br>思路：首先实现集合FIRST(X)构造算法和集合FOLLOW(A)构造算法，再根据FIRST和FOLLOW集合构造出预测分析表，并对指定的句子打印出分析栈的分析过程，判断是否为该文法的句子。</p>
+<ol>
+<li><p>求FIRST集的算法思想<br>如果产生式右部第一个字符为终结符，则将其计入左部first集<br>如果产生式右部第一个字符为非终结符<br>-&gt;求该非终结符的first集<br>-&gt;将该非终结符的非$first集计入左部的first集<br>-&gt;若存在$，则将指向产生式的指针右移<br>-&gt;若不存在$，则停止遍历该产生式，进入下一个产生式<br>-&gt;若已经到达产生式的最右部的非终结符，则将$加入左部的first集<br>处理数组中重复的first集中的终结符</p>
+</li>
+<li><p>求FOLLOW集的算法思想<br>对于文法G中每个非终结符A构造FOLLOW(A)的办法是,连续使用下面的规则,直到每个FOLLOW不在增大为止.<br>(1) 对于文法的开始符号S,置#于FOLLOW(S)中;<br>(2) 若A-&gt;aBb是一个产生式,则把FIRST(b){ε}加至FOLLOW(B)中;<br>(3) 若A-&gt;aB是一个产生式,或A-&gt;aBb是一个产生式而b=&gt;ε(即ε∈FIRST(b))则把FOLLOW(A)加至FOLLOW(B)中</p>
+</li>
+<li><p>生成预测分析表的算法思想<br>构造分析表M的算法是：<br>(1) 对文法G的每个产生式A-&gt;a执行第二步和第三步;<br>(2) 对每个终结符a∈FIRST(a),把A-&gt;a加至M[A,a]中;<br>(3) 若ε∈FIRST(a),则把任何b∈FOLLOW(A)把A-&gt;a加至M[A,b]中;<br>(4) 把所有无定义的M[A,a]标上出错标志.</p>
+</li>
+<li><p>对符号串的分析过程<br>预测分析程序的总控程序在任何时候都是按STACK栈顶符号X和当前的输入符号行事的,对于任何(X,a),总控程序<br>每次都执行下述三种可能的动作之一;<br>(1) 若X=a=”#”,则宣布分析成功,停止分析过程.<br>(2) 若X=a≠”#”,则把X从STACK栈顶逐出,让a指向下一个输入符号.<br>(3) 若X是一个非终结符,则查看分析表M,若M[A,a]中存放着关于X的一个产生式,那么,首先把X逐出STACK栈顶,然后<br>把产生式的右部符号串按反序一一推进STACK栈(若右部符号为ε,则意味着不推什么东西进栈).在把产生式的右部<br>符号推进栈的同时应做这个产生式相应得语义动作,若M[A,a]中存放着”出错标志”,则调用出错诊察程序ERROR.<br><strong><em>句子采用i\</em>i+i*</strong><br><strong><em>文法采用课本P69消除左递归后的4.2文法：</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">E-&gt;TE&apos;</div><div class="line">E&apos;-&gt;+TE&apos;|ε</div><div class="line">T-&gt;FT&apos;</div><div class="line">T&apos;-&gt;*FT&apos;|ε</div><div class="line">F-&gt;(E)|i</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>LL1_Deque.java源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.LL1;</div><div class="line"><span class="keyword">import</span> java.util.ArrayDeque;</div><div class="line"><span class="keyword">import</span> java.util.Deque;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * LL1文法分析器，已经构建好预测分析表,采用Deque实现</div><div class="line"> * Created by HongWeiPC on 2017/5/12.</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LL1_Deque</span> </span>&#123;</div><div class="line">    <span class="comment">//预测分析表</span></div><div class="line">    <span class="keyword">private</span> String[][] analysisTable = <span class="keyword">new</span> String[][]&#123;</div><div class="line">            &#123;<span class="string">"TE'"</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"TE'"</span>, <span class="string">""</span>, <span class="string">""</span>&#125;,</div><div class="line">            &#123;<span class="string">""</span>, <span class="string">"+TE'"</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"ε"</span>, <span class="string">"ε"</span>&#125;,</div><div class="line">            &#123;<span class="string">"FT'"</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"FT'"</span>, <span class="string">""</span>, <span class="string">""</span>&#125;,</div><div class="line">            &#123;<span class="string">""</span>, <span class="string">"ε"</span>, <span class="string">"*FT'"</span>, <span class="string">""</span>, <span class="string">"ε"</span>, <span class="string">"ε"</span>&#125;,</div><div class="line">            &#123;<span class="string">"i"</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"(E)"</span>, <span class="string">""</span>, <span class="string">""</span>&#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="comment">//终结符</span></div><div class="line">    <span class="keyword">private</span> String[] VT = <span class="keyword">new</span> String[]&#123;<span class="string">"i"</span>, <span class="string">"+"</span>, <span class="string">"*"</span>, <span class="string">"("</span>, <span class="string">")"</span>, <span class="string">"#"</span>&#125;;</div><div class="line"></div><div class="line">    <span class="comment">//非终结符</span></div><div class="line">    <span class="keyword">private</span> String[] VN = <span class="keyword">new</span> String[]&#123;<span class="string">"E"</span>, <span class="string">"E'"</span>, <span class="string">"T"</span>, <span class="string">"T'"</span>, <span class="string">"F"</span>&#125;;</div><div class="line"></div><div class="line">    <span class="comment">//输入串strToken</span></div><div class="line">    <span class="keyword">private</span> StringBuilder strToken = <span class="keyword">new</span> StringBuilder(<span class="string">"i*i+i"</span>);</div><div class="line"></div><div class="line">    <span class="comment">//分析栈stack</span></div><div class="line">    <span class="keyword">private</span> Deque&lt;String&gt; stack = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</div><div class="line"></div><div class="line">    <span class="comment">//shuru1保存从输入串中读取的一个输入符号，当前符号</span></div><div class="line">    <span class="keyword">private</span> String shuru1 = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">    <span class="comment">//X中保存stack栈顶符号</span></div><div class="line">    <span class="keyword">private</span> String X = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">    <span class="comment">//flag标志预测分析是否成功</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</div><div class="line"></div><div class="line">    <span class="comment">//记录输入串中当前字符的位置</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cur = <span class="number">0</span>;</div><div class="line"></div><div class="line">    <span class="comment">//记录步数</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count = <span class="number">0</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        LL1_Deque ll1 = <span class="keyword">new</span> LL1_Deque();</div><div class="line">        ll1.init();</div><div class="line">        ll1.totalControlProgram();</div><div class="line">        ll1.printf();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//初始化</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</div><div class="line">        strToken.append(<span class="string">"#"</span>);</div><div class="line">        stack.push(<span class="string">"#"</span>);</div><div class="line">        System.out.printf(<span class="string">"%-8s %-18s %-17s %s\n"</span>, <span class="string">"步骤 "</span>, <span class="string">"符号栈 "</span>, <span class="string">"输入串 "</span>, <span class="string">"所用产生式 "</span>);</div><div class="line">        stack.push(<span class="string">"E"</span>);</div><div class="line">        curCharacter();</div><div class="line">        System.out.printf(<span class="string">"%-10d %-20s %-20s\n"</span>, count, stack.toString(), strToken.substring(cur, strToken.length()));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//读取当前栈顶符号</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">stackPeek</span><span class="params">()</span> </span>&#123;</div><div class="line">        X = stack.peekFirst();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//返回输入串中当前位置的字母</span></div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">curCharacter</span><span class="params">()</span> </span>&#123;</div><div class="line">        shuru1 = String.valueOf(strToken.charAt(cur));</div><div class="line">        <span class="keyword">return</span> shuru1;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//判断X是否是终结符</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">XisVT</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; (VT.length - <span class="number">1</span>); i++) &#123;</div><div class="line">            <span class="keyword">if</span> (VT[i].equals(X)) &#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//查找X在非终结符中分析表中的横坐标</span></div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">VNTI</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> Ni = <span class="number">0</span>, Tj = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; VN.length; i++) &#123;</div><div class="line">            <span class="keyword">if</span> (VN[i].equals(X)) &#123;</div><div class="line">                Ni = i;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; VT.length; j++) &#123;</div><div class="line">            <span class="keyword">if</span> (VT[j].equals(shuru1)) &#123;</div><div class="line">                Tj = j;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> analysisTable[Ni][Tj];</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//判断M[A,a]=&#123;X-&gt;X1X2...Xk&#125;</span></div><div class="line">    <span class="comment">//把X1X2...Xk推进栈</span></div><div class="line">    <span class="comment">//X1X2...Xk=ε，不推什么进栈</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">productionType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> VNTI() != <span class="string">""</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//推进stack栈</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">pushStack</span><span class="params">()</span> </span>&#123;</div><div class="line">        stack.pop();</div><div class="line">        String M = VNTI();</div><div class="line">        String ch;</div><div class="line">        <span class="comment">//处理TE' FT' *FT'特殊情况</span></div><div class="line">        <span class="keyword">switch</span> (M) &#123;</div><div class="line">            <span class="keyword">case</span> <span class="string">"TE'"</span>:</div><div class="line">                stack.push(<span class="string">"E'"</span>);</div><div class="line">                stack.push(<span class="string">"T"</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> <span class="string">"FT'"</span>:</div><div class="line">                stack.push(<span class="string">"T'"</span>);</div><div class="line">                stack.push(<span class="string">"F"</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> <span class="string">"*FT'"</span>:</div><div class="line">                stack.push(<span class="string">"T'"</span>);</div><div class="line">                stack.push(<span class="string">"F"</span>);</div><div class="line">                stack.push(<span class="string">"*"</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> <span class="string">"+TE'"</span>:</div><div class="line">                stack.push(<span class="string">"E'"</span>);</div><div class="line">                stack.push(<span class="string">"T"</span>);</div><div class="line">                stack.push(<span class="string">"+"</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = (M.length() - <span class="number">1</span>); i &gt;= <span class="number">0</span>; i--) &#123;</div><div class="line">                    ch = String.valueOf(M.charAt(i));</div><div class="line">                    stack.push(ch);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        System.out.printf(<span class="string">"%-10d %-20s %-20s %s-&gt;%s\n"</span>, (++count), stack.toString(), strToken.substring(cur, strToken.length()), X, M);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//总控程序</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">totalControlProgram</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (flag) &#123;</div><div class="line">            stackPeek();  <span class="comment">//读取当前栈顶符号  令X=栈顶符号</span></div><div class="line">            <span class="keyword">if</span> (XisVT()) &#123;</div><div class="line">                <span class="keyword">if</span> (X.equals(shuru1)) &#123;</div><div class="line">                    cur++;</div><div class="line">                    shuru1 = curCharacter();</div><div class="line">                    stack.pop();</div><div class="line">                    System.out.printf(<span class="string">"%-10d %-20s %-20s \n"</span>, (++count), stack.toString(), strToken.substring(cur, strToken.length()));</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    ERROR();</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (X.equals(<span class="string">"#"</span>)) &#123;</div><div class="line">                <span class="keyword">if</span> (X.equals(shuru1)) &#123;</div><div class="line">                    flag = <span class="keyword">false</span>;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    ERROR();</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (productionType()) &#123;</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (VNTI().equals(<span class="string">""</span>)) &#123;</div><div class="line">                    ERROR();</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (VNTI().equals(<span class="string">"ε"</span>)) &#123;</div><div class="line">                    stack.pop();</div><div class="line">                    System.out.printf(<span class="string">"%-10d %-20s %-20s %s-&gt;%s\n"</span>, (++count), stack.toString(), strToken.substring(cur, strToken.length()), X, VNTI());</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    pushStack();</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                ERROR();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//出现错误</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ERROR</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"输入串出现错误，无法进行分析"</span>);</div><div class="line">        System.exit(<span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//打印存储分析表</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">printf</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!flag) &#123;</div><div class="line">            System.out.println(<span class="string">"****分析成功啦！****"</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            System.out.println(<span class="string">"****分析失败了****"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>运行结果如下图所示<br><img src="http://upload-images.jianshu.io/upload_images/3943248-47762ec5c4ea7b42.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="运行结果"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/wechat.png" alt="Hongwei wechat" style="width: 200px; max-width: 100%;"/>
+    <div>欢迎大家关注微信公众号：ghw1996</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      Hongwei
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://www.nuanbear.top/2017/05/14/ll1/" title="LL1文法_预测分析法_语法分析器">http://www.nuanbear.top/2017/05/14/ll1/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LL1文法/" rel="tag"># LL1文法</a>
+          
+            <a href="/tags/预测分析法/" rel="tag"># 预测分析法</a>
+          
+            <a href="/tags/语法分析/" rel="tag"># 语法分析</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/14/javazfc/" rel="next" title="java string常见操作题">
+                <i class="fa fa-chevron-left"></i> java string常见操作题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/21/treeset/" rel="prev" title="Java_TreeSet_自定义排序与练习题">
+                Java_TreeSet_自定义排序与练习题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Hongwei" />
+          <p class="site-author-name" itemprop="name">Hongwei</p>
+           
+              <p class="site-description motion-element" itemprop="description">不念过去，不畏将来</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/hongwei666" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/1910909471/profile?rightmod=1&wvr=6&mod=personinfo" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强有力地驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 你是今天第
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      位访客
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
